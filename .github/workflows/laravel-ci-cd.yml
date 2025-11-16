@@ -3,53 +3,44 @@ name: Laravel CI/CD
 on:
   push:
     branches:
-      - main  # Trigger on push to main branch
+      - main
 
 jobs:
   build-test-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repository
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      # 2. Setup PHP
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: '8.2'
           extensions: mbstring, pdo, tokenizer, xml, bcmath, curl
 
-      # 3. Install Composer dependencies
       - name: Install Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
-      # 4. Prepare .env and generate APP_KEY
       - name: Prepare .env and Generate APP_KEY
         run: |
           cp .env.example .env
           php artisan key:generate --force
 
-      # 5. Run Laravel Tests
       - name: Run Tests
         run: php artisan test --without-tty
 
-      # 6. Install Node.js (for Vite/Laravel Mix, optional)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
-      # 7. Install Railway CLI
-      - name: Install Railway CLI
-        run: npm install -g railway
+      - name: Install Railway CLI (new version)
+        run: npm install -g @railway/cli
 
-      # 8. Deploy to Railway
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway login --token $RAILWAY_TOKEN
           railway up --project ${{ secrets.RAILWAY_PROJECT_ID }} --environment ${{ secrets.RAILWAY_ENVIRONMENT }} --detach
 
