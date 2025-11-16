@@ -19,7 +19,7 @@ jobs:
           php-version: '8.2'
           extensions: mbstring, pdo, tokenizer, xml, bcmath, curl
 
-      - name: Install Dependencies
+      - name: Install Composer Dependencies
         run: composer install --no-interaction --prefer-dist --optimize-autoloader
 
       - name: Prepare .env and Generate APP_KEY
@@ -40,7 +40,6 @@ jobs:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
           npm install -g @railway/cli
-          railway login --ci
           railway link ${{ secrets.RAILWAY_PROJECT_ID }}
           railway up --detach --environment ${{ secrets.RAILWAY_ENVIRONMENT }}
 
