@@ -35,12 +35,12 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Railway CLI (new version)
-        run: npm install -g @railway/cli
-
       - name: Deploy to Railway
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
         run: |
-          railway up --project ${{ secrets.RAILWAY_PROJECT_ID }} --environment ${{ secrets.RAILWAY_ENVIRONMENT }} --detach
+          npm install -g @railway/cli
+          railway login --ci
+          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
+          railway up --detach --environment ${{ secrets.RAILWAY_ENVIRONMENT }}
 
