@@ -1,45 +1,33 @@
-name: Laravel CI/CD
+name: Simple Laravel Test
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build-test-deploy:
+  test:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout Code
+      - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup PHP
+      - name: Set up PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.2'
-          extensions: mbstring, pdo, tokenizer, xml, bcmath, curl
+          php-version: 8.2
+          extensions: mbstring, pdo, bcmath
 
-      - name: Install Composer Dependencies
-        run: composer install --no-interaction --prefer-dist --optimize-autoloader
+      - name: Install Composer dependencies
+        run: composer install --no-progress --prefer-dist
 
-      - name: Prepare .env and Generate APP_KEY
+      - name: Create environment
         run: |
           cp .env.example .env
-          php artisan key:generate --force
+          php artisan key:generate
 
-      - name: Run Tests
-        run: php artisan test --without-tty
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          npm install -g @railway/cli
-          railway link ${{ secrets.RAILWAY_PROJECT_ID }}
-          railway up --detach --environment ${{ secrets.RAILWAY_ENVIRONMENT }}
+      - name: Run tests
+        run: php artisan test
 
